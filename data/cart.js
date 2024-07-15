@@ -33,18 +33,19 @@ export function updateCartQuantity() {
     document.querySelector('.cart-quantity').innerHTML = total;
 }
 
-let timeOutId;
+
+const timeOutIds = {};
 
 export function showAddedPopup(productId) {
     document.querySelector(`.added-to-cart-${productId}`).style.opacity = 1;
 
-    if (timeOutId) {
-        clearTimeout(timeOutId);
-        timeOutId = 0;
+    if (timeOutIds[productId]) {
+        clearTimeout(timeOutIds[productId]);
+        timeOutIds[productId] = 0;
     }
 
-    timeOutId = setTimeout(() => {
+    timeOutIds[productId] = setTimeout(() => {
         document.querySelector(`.added-to-cart-${productId}`).style.opacity = 0;
-    }, 3000);
+    }, 2000);
 }
 

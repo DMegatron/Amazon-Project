@@ -61,11 +61,16 @@ cart.forEach((product) => {
                         </div>
                         <div class="product-quantity">
                         <span>
-                            Quantity: <span class="quantity-label">${product.quantity}</span>
+                            Quantity: <span class="quantity-label-${productToAdd.id}">${product.quantity}</span>
                         </span>
-                        <span class="update-quantity-link link-primary">
+                        
+                        <span class="update-quantity-link update-quantity-link-${productToAdd.id} link-primary" data-product-id="${productToAdd.id}">
                             Update
                         </span>
+
+                        <input type="number" data-product-id="${productToAdd.id}" class="quantity-input-${productToAdd.id} quantity-input" placeholder="${product.quantity}" min="1" style="display: none;">
+                        <span class="save-quantity-link-${productToAdd.id} save-quantity-link link-primary" data-product-id="${productToAdd.id}" style="display: none;">Save</span>
+                        
                         <span class="delete-quantity-link link-primary" data-product-id="${productToAdd.id}">
                             Delete
                         </span>
@@ -121,6 +126,8 @@ cart.forEach((product) => {
         `;
 });
 
+
+
 document.querySelector('.order-summary').innerHTML = orderSummary;
 
 calculateCart();
@@ -172,14 +179,53 @@ export function calculateCart() {
 document.querySelectorAll('.delete-quantity-link')
     .forEach((deleteBtn) => {
         deleteBtn.addEventListener('click', () => {
-            console.log('debug');
             const id = deleteBtn.dataset.productId;
-            console.log(deleteBtn.dataset.productId);
             document.querySelector(`.cart-item-container-${id}`).remove();
             cart = cart.filter(item => item.productId !== id);
             localStorage.setItem('cart', JSON.stringify(cart));
-            console.log(cart);
             calculateCart();
+        });
+    });
+
+document.querySelectorAll('.update-quantity-link')
+    .forEach((updateBtn) => {
+        updateBtn.addEventListener('click', () => {
+            const id = updateBtn.dataset.productId;
+            updateBtn.style = "display: none";
+            document.querySelector(`.save-quantity-link-${id}`).style = "display: inline";
+            document.querySelector(`.quantity-input-${id}`).style = "display: inline";
+        });
+    });
+
+function save(saveBtn) {
+    const id = saveBtn.dataset.productId;
+    const inputValue = Number(document.querySelector(`.quantity-input-${id}`).value);
+    if(!inputValue){
+        return;
+    }
+    cart.forEach((item) => {
+        if (item.productId == id) {
+            item.quantity = inputValue;
+        }
+    });
+    localStorage.setItem('cart', JSON.stringify(cart));
+    document.querySelector(`.quantity-label-${id}`).innerHTML = inputValue;
+    calculateCart();
+    document.querySelector(`.update-quantity-link-${id}`).style = "display: inline";
+    saveBtn.style = "display: none";
+    document.querySelector(`.quantity-input-${id}`).style = "display: none";
+}
+
+document.querySelectorAll('.save-quantity-link')
+    .forEach((saveBtn) => {
+        saveBtn.addEventListener('click', (event) => {
+            save(saveBtn);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter'){
+                save(saveBtn);
+            }
         });
     });
 
